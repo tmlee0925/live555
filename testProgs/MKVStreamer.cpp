@@ -22,6 +22,12 @@ along with this library; if not, write to the Free Software Foundation, Inc.,
 #include <BasicUsageEnvironment.hh>
 #include <GroupsockHelper.hh>
 
+#include <stdio.h>
+#include <io.h>
+#include <conio.h>
+
+
+
 UsageEnvironment* env;
 char const* inputFileName = "test.mkv";
 struct in_addr destinationAddress;
@@ -40,10 +46,86 @@ static struct {
 
 void onMatroskaFileCreation(MatroskaFile* newFile, void* clientData); // forward
 
+
+
+char const* progName;
+unsigned short rtpPortNum = 15010;
+
+const unsigned char ttl = 1;
+unsigned int delay = 0;
+char const* multicastAddrStr
+#ifdef USE_SSM
+= "232.1.2.1";
+#else
+= "234.1.2.1";
+#endif
+
+unsigned short serverPortNum = 8514;
+char const* streamName;
+#define MAX_FILE 1024
+#define MAX_BUF 256
+
+char file[MAX_FILE][MAX_BUF] = { 0, };
+unsigned int nFile = 0;
+unsigned int iFile = 0;
+
+void usage() {
+	*env << "Usage: " << progName
+		<< " [-t <ttl>] " << ttl
+		<< " [-m <multicastAddr>] " << multicastAddrStr
+		<< " [-p <rtpPort>] " << rtpPortNum
+		<< " [-r <serverPort>] " << serverPortNum
+		<< " [-d <delay>] " << delay
+		<< "\n";
+	//shutdown();
+}
+
+void ScanDir(char const* fileName)
+{
+
+	_finddata_t fd;
+	long handle;
+	int result = 1;
+	handle = _findfirst(fileName, &fd);  //현재 폴더 내 모든 파일을 찾는다.
+
+	if (handle == -1)
+	{
+		printf("There were no files.\n");
+		return;
+	}
+
+	while (result != -1)
+	{
+		strcpy(file[nFile], fd.name);
+		nFile++;
+		//for (unsigned int i = 0; i < nFile; i++)
+		{
+			//*env << "    file[" << i << "] = " << file[i] << "\n";
+			printf("    file%d[%s]\n", nFile, fd.name);
+		}
+
+		result = _findnext(handle, &fd);
+	}
+
+	_findclose(handle);
+
+
+}
+
+
+
+
+
 int main(int argc, char** argv) {
+
+	const char *fileName = NULL;
+	progName = argv[0];
+
+
   // Begin by setting up our usage environment:
   TaskScheduler* scheduler = BasicTaskScheduler::createNew();
   env = BasicUsageEnvironment::createNew(*scheduler);
+  *env << "Build (1.0.0) : " << __DATE__ << " " << __TIME__ << " by tmlee@piranti.co.kr" << "\n";
 
   // Define our destination (multicast) IP address:
   destinationAddress.s_addr = chooseRandomIPv4SSMAddress(*env);
@@ -51,19 +133,35 @@ int main(int argc, char** argv) {
     // using unicast, then you should use the "testOnDemandRTSPServer"
     // test program - not this test program - as a model.
 
+  ScanDir(".\\*.mkv");
+  char streamName[16];
+  sprintf(streamName, "Stream%d", serverPortNum);
+
   // Create our RTSP server.  (Receivers will need to use RTSP to access the stream.)
-  rtspServer = RTSPServer::createNew(*env, 8554);
+  rtspServer = RTSPServer::createNew(*env, serverPortNum);
   if (rtspServer == NULL) {
     *env << "Failed to create RTSP server: " << env->getResultMsg() << "\n";
     exit(1);
   }
-  sms = ServerMediaSession::createNew(*env, "testStream", inputFileName,
+  sms = ServerMediaSession::createNew(*env, streamName, inputFileName,
 				      "Session streamed by \"testMKVStreamer\"",
 				      True /*SSM*/);
 
+
+  if (nFile > 0)
+  {
+
+	  fileName = file[iFile];		// first file
+  }
+  else
+  {
+
+	  fileName = inputFileName;		// default file
+  }
+
   // Arrange to create a "MatroskaFile" object for the specified file.
   // (Note that this object is not created immediately, but instead via a callback.)
-  MatroskaFile::createNew(*env, inputFileName, onMatroskaFileCreation, NULL, "jpn");
+  MatroskaFile::createNew(*env, fileName, onMatroskaFileCreation, NULL, "jpn");
 
   env->taskScheduler().doEventLoop(); // does not return
 
@@ -130,7 +228,11 @@ void onMatroskaFileCreation(MatroskaFile* newFile, void* /*clientData*/) {
   rtspServer->addServerMediaSession(sms);
 
   char* url = rtspServer->rtspURL(sms);
-  *env << "Play this stream using the URL \"" << url << "\"\n";
+//  *env << "Play this stream using the URL \"" << url << "\"\n";
+  *env << "Streaming() " << multicastAddrStr << ":" << rtpPortNum << " RTSP(" << serverPortNum << ") ttl=" << ttl << ", delay =" << delay;
+  *env << "\n";
+
+  *env << "[ BEGIN ] - (" << newFile << ") \"" << url << "\"\n";
   delete[] url;
 
   // Start the streaming:
