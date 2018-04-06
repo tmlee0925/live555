@@ -63,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testRTSPClient", "..\testPr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vobStreamer", "..\testProgs\vobStreamer.vcxproj", "{AC04C177-5EE1-44C8-8773-113618493D1C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MKVStreamer", "..\testProgs\MKVStreamer.vcxproj", "{58541448-919A-4405-BB2F-8094A4FCF755}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -185,6 +187,10 @@ Global
 		{AC04C177-5EE1-44C8-8773-113618493D1C}.Debug|Win32.Build.0 = Debug|Win32
 		{AC04C177-5EE1-44C8-8773-113618493D1C}.Release|Win32.ActiveCfg = Release|Win32
 		{AC04C177-5EE1-44C8-8773-113618493D1C}.Release|Win32.Build.0 = Release|Win32
+		{58541448-919A-4405-BB2F-8094A4FCF755}.Debug|Win32.ActiveCfg = Debug|Win32
+		{58541448-919A-4405-BB2F-8094A4FCF755}.Debug|Win32.Build.0 = Debug|Win32
+		{58541448-919A-4405-BB2F-8094A4FCF755}.Release|Win32.ActiveCfg = Release|Win32
+		{58541448-919A-4405-BB2F-8094A4FCF755}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -213,6 +219,7 @@ Global
 		{7B7114E5-8F74-4C64-AD7C-6CC7A1D2A910} = {3FB9439B-72F0-45F7-8ECD-AC286E898386}
 		{7C19C3BB-E408-4976-B996-BDFBA35A06D9} = {3FB9439B-72F0-45F7-8ECD-AC286E898386}
 		{AC04C177-5EE1-44C8-8773-113618493D1C} = {3FB9439B-72F0-45F7-8ECD-AC286E898386}
+		{58541448-919A-4405-BB2F-8094A4FCF755} = {3FB9439B-72F0-45F7-8ECD-AC286E898386}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B7E92D6-5AF4-4859-8466-802977018CFF}
